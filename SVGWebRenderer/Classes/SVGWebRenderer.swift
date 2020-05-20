@@ -207,7 +207,7 @@ extension SVGRenderer: WKNavigationDelegate {
 
 class SVGCacher {
     let directoryPath: String
-    var images = [String: UIImage]()
+    var images = NSCache<NSString, UIImage>()
 
     init() {
         let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/svgs/"
@@ -219,21 +219,21 @@ class SVGCacher {
     }
 
     func saveImage(_ image: UIImage, forKey key: String) {
-        images[key] = image
+        images.setObject(image, forKey: NSString(string: key))
         let filePath = directoryPath + key
         let url = URL(fileURLWithPath: filePath)
         try? image.pngData()?.write(to: url)
     }
 
     func getImageForKey(_ key: String) -> UIImage? {
-        if let image = images[key] {
+        if let image = images.object(forKey: NSString(string: key)) {
             return image
         }
         let filePath = directoryPath + key
         let url = URL(fileURLWithPath: filePath)
-        if let data = try? Data(contentsOf: url) {
-            let image = UIImage(data: data)
-            images[key] = image
+        if let data = try? Data(contentsOf: url),
+            let image = UIImage(data: data) {
+            images.setObject(image, forKey: NSString(string: key))
             return image
         }
         return nil
@@ -245,7 +245,7 @@ class SVGFileCacher {
     var files = [String: String]()
 
     init() {
-        let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/svgs/files/"
+        let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "./svgs/files/"
         let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: directoryPath) {
             try? fileManager.createDirectory(atPath: directoryPath, withIntermediateDirectories: true)
