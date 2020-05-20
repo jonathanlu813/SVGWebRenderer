@@ -44,7 +44,7 @@
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		87EA7CD332569D289D140450 /* Pods_SVGWebRenderer_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SVGWebRenderer_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		A98A38348DDA7855A0580711 /* SVGWebRenderer.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SVGWebRenderer.podspec; path = ../SVGWebRenderer.podspec; sourceTree = "<group>"; };
+		A98A38348DDA7855A0580711 /* SVGWebRenderer.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SVGWebRenderer.podspec; path = ../SVGWebRenderer.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		AF9856152DCB94F19B5016FE /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		BFD3CC1A244D1B8000BC49FF /* LocalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalViewController.swift; sourceTree = "<group>"; };
 		BFD3CC1C244D1B9B00BC49FF /* RemoteViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteViewController.swift; sourceTree = "<group>"; };

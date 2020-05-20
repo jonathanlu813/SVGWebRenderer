@@ -27,7 +27,17 @@ extension UIView {
 
 extension UIImageView {
     public func setSVGImage(_ svgString: String, completion: ((UIImage?) -> Void)? = nil) {
-        let size = self.frame.size
+        var size = self.frame.size
+        if let lowerRange = svgString.range(of: "viewBox=\""),
+            let upperRange = svgString[lowerRange.upperBound...].range(of: "\"") {
+            let viewbox = svgString[lowerRange.upperBound..<upperRange.lowerBound]
+            let values = viewbox.split(separator: " ")
+            if values.count == 4,
+                let width = Double(values[2]),
+                let height = Double(values[3]) {
+                size = CGSize(width: Double(size.width), height: Double(size.width) / width * height)
+            }
+        }
         SVGRenderer.shared().renderSVG(svgString: svgString, size: size) { [weak self] (image) in
             self?.image = image
             if let completion = completion {
@@ -92,6 +102,9 @@ public class SVGRenderer: NSObject {
     var requestQueue = [String]() {
         didSet {
             processRequestQueue()
+            if requestQueue.count == 0 {
+                webview.isHidden = true
+            }
         }
     }
 
@@ -170,6 +183,7 @@ public class SVGRenderer: NSObject {
         }
         currentRequestKey = request.key
         webview.frame = CGRect(origin: CGPoint.zero, size: request.size)
+        webview.isHidden = false
         let htmlStart = """
                         <HTML><STYLE>body { margin: 0 !important; padding: 0 !important; }</STYLE>
                         <HEAD><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, shrink-to-fit=no\"></HEAD><BODY>
@@ -188,7 +202,7 @@ public class SVGRenderer: NSObject {
 
 extension SVGRenderer: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             guard let currentRequestKey = self?.currentRequestKey,
                 let request = self?.renderRequests[currentRequestKey],
                 let image = self?.webview.takeScreenshot() else {
@@ -210,7 +224,7 @@ class SVGCacher {
     var images = NSCache<NSString, UIImage>()
 
     init() {
-        let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/svgs/"
+        let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "./svgs/"
         let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: directoryPath) {
             try? fileManager.createDirectory(atPath: directoryPath, withIntermediateDirectories: true)
@@ -242,7 +256,7 @@ class SVGCacher {
 
 class SVGFileCacher {
     let directoryPath: String
-    var files = [String: String]()
+    var files = NSCache<NSString, NSString>()
 
     init() {
         let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "./svgs/files/"
@@ -258,7 +272,7 @@ class SVGFileCacher {
             return
         }
         let key = url.sha3(.sha256)
-        files[key] = file
+        files.setObject(NSString(string: file), forKey: NSString(string: key))
         let filePath = directoryPath + key
         let fileUrl = URL(fileURLWithPath: filePath)
         try? fileData.write(to: fileUrl)
@@ -266,13 +280,14 @@ class SVGFileCacher {
 
     func getFileForUrl(_ url: String) -> String? {
         let key = url.sha3(.sha256)
-        if let file = files[key] {
-            return file
+        if let file = files.object(forKey: NSString(string: key)) {
+            return String(file)
         }
         let filePath = directoryPath + key
         let fileUrl = URL(fileURLWithPath: filePath)
         if let data = try? Data(contentsOf: fileUrl),
             let file = String(data: data, encoding: .utf8) {
+            files.setObject(NSString(string: file), forKey: NSString(string: key))
             return file
         }
         return nil
