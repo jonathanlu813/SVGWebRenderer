@@ -224,7 +224,7 @@ class SVGCacher {
     var images = NSCache<NSString, UIImage>()
 
     init() {
-        let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "./svgs/"
+        let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/.svgs/"
         let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: directoryPath) {
             try? fileManager.createDirectory(atPath: directoryPath, withIntermediateDirectories: true)
@@ -236,7 +236,11 @@ class SVGCacher {
         images.setObject(image, forKey: NSString(string: key))
         let filePath = directoryPath + key
         let url = URL(fileURLWithPath: filePath)
-        try? image.pngData()?.write(to: url)
+        do {
+            try image.pngData()?.write(to: url)
+        } catch {
+            print("error saving image to the disk: \(error.localizedDescription)")
+        }
     }
 
     func getImageForKey(_ key: String) -> UIImage? {
@@ -259,7 +263,7 @@ class SVGFileCacher {
     var files = NSCache<NSString, NSString>()
 
     init() {
-        let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "./svgs/files/"
+        let directoryPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/.svgs/files/"
         let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: directoryPath) {
             try? fileManager.createDirectory(atPath: directoryPath, withIntermediateDirectories: true)
