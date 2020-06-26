@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'SVGWebRenderer'
-  s.version          = '0.2.1'
+  s.version          = '0.2.2'
   s.summary          = 'Rendering SVG files into UIImages using WKWebView'
 
   s.description      = <<-DESC

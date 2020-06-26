@@ -129,6 +129,10 @@ public class SVGRenderer: NSObject {
         }
         return fileCacher.getFileForUrl(url.absoluteString) != nil
     }
+    
+    public func clearImageCache() {
+        cacher.clearCache()
+    }
 
     public func renderSVG(svgString: String, size: CGSize = CGSize(width: 100, height: 100), handler: @escaping (UIImage?) -> Void) {
         let request = SVGRenderRequest(svgString: svgString, size: size, handler: handler)
@@ -202,7 +206,7 @@ public class SVGRenderer: NSObject {
 
 extension SVGRenderer: WKNavigationDelegate {
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             guard let currentRequestKey = self?.currentRequestKey,
                 let request = self?.renderRequests[currentRequestKey],
                 let image = self?.webview.takeScreenshot() else {
@@ -255,6 +259,19 @@ class SVGCacher {
             return image
         }
         return nil
+    }
+    
+    func clearCache() {
+        images.removeAllObjects()
+        do {
+            let files = try FileManager.default.contentsOfDirectory(atPath: directoryPath)
+            for file in files {
+                if file == "files" { continue }
+                try FileManager.default.removeItem(atPath: directoryPath + file)
+            }
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 }
 
